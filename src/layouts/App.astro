@@ -1,16 +1,41 @@
-<div>
-  <label for="port-select">Choose a port:</label>
-  <select name="port" id="port-select">
-    <option value="">--None--</option>
-  </select>
-  <button type="button" name="add-port" autofocus>Add</button>
-</div>
-
-<div>
-  <label for="baud-rate-select">Choose a baud rate:</label>
-  <select name="baud-rate" id="baud-rate-select">
-    <option value="">--None--</option>
-  </select>
-</div>
+<ol>
+  <li>
+    <label>Communication control</label>
+  </li>
+  <li>
+    <label>GPS coordinates</label>
+  </li>
+  <li>
+    <label>EET time</label>
+  </li>
+  <li>
+    <label>Satellite count</label>
+  </li>
+  <li>
+    <label for="port-select">Choose a port:</label>
+  </li>
+  <li>
+    <select name="port" id="port-select">
+      <option value="">--None--</option>
+    </select>
+    <button type="button" name="add-port" autofocus>Add</button>
+  </li>
+  <li><p>Sample coords</p></li>
+  <li><p>Sample time</p></li>
+  <li><p>Sample count</p></li>
+  <li>
+    <label for="baud-rate-select">Choose a baud rate:</label>
+  </li>
+  <li>
+    <select name="baud-rate" id="baud-rate-select">
+      <option value="912600">912600</option>
+      <option value="115200">115200</option>
+      <option value="9600">9600</option>
+    </select>
+  </li>
+  <li>
+    <button type="button" name="connect-port">Connect port</button>
+  </li>
+</ol>
 
 <script></script>
