@@ -14,42 +14,35 @@
     <label>Satellite count:</label>
   </li>
   <li>
-    <label for="port-select">Choose a port:</label>
+    <label for="select-port">Choose a port:</label>
   </li>
   <li>
-    <select name="port" id="port-select">
-      <option value="">--None--</option>
-    </select>
-    <button type="button" name="add-port" autofocus>Add</button>
+    <button type="button" id="select-port" autofocus>Select</button>
   </li>
   <li class="row-span-3"><p>Sample coords</p></li>
   <li class="row-span-3"><p>Sample time</p></li>
   <li class="row-span-3"><p>Sample count</p></li>
   <li>
-    <label for="baud-rate-select">Choose a baud rate:</label>
+    <label for="select-baud-rate">Choose a baud rate:</label>
   </li>
   <li>
-    <select name="baud-rate" id="baud-rate-select">
+    <select id="select-baud-rate">
       <option value="912600">912600</option>
       <option value="115200">115200</option>
       <option value="9600">9600</option>
     </select>
   </li>
   <li class="col-span-2">
-    <button type="button" name="connect-port">Connect port</button>
+    <button type="button" id="connect-port">Connect port</button>
   </li>
   <li class="col-span-2 flex grow flex-col">
     <textarea
       readonly
       cols="70"
       rows="10"
-      name="console"
-      class="h-full bg-gray-200"
-      >DS,37.551731,14.298466,14:00:38,0,0.04,-0.01,0.99,0.00,0.10,0.02
-      DS,37.551731,14.298466,14:00:38,0,0.04,-0.01,0.99,0.00,0.10,0.02
-      DS,37.551731,14.298466,14:00:38,0,0.04,-0.01,0.99,0.00,0.10,0.02
-    </textarea>
-    <button type="button" name="clear-console">Clear console</button>
+      id="console"
+      class="h-full bg-gray-200 text-sm"></textarea>
+    <button type="button" id="clear-console">Clear console</button>
   </li>
   <li class="col-span-3">
     <div class="h-full bg-red-100">Graph</div>
@@ -59,4 +52,74 @@
   </li>
 </ol>
 
-<script></script>
+<script>
+  var serial_port: SerialPort | null;
+
+  const port_button = document.getElementById("select-port");
+  port_button?.addEventListener("click", () => {
+    navigator.serial
+      .requestPort()
+      .then((port) => {
+        // Connect to `port` or add it to the list of available ports.
+        serial_port = port;
+      })
+      .catch((e) => {
+        // The user didn't select a port.
+        alert("Please select a port!");
+      });
+  });
+
+  navigator.serial.addEventListener("disconnect", (e) => {
+    // Remove `e.target` from the list of available ports.
+    if (e.target === serial_port) {
+      serial_port = null;
+      alert("Device disconnected!");
+    }
+  });
+
+  const console = document.getElementById("console") as HTMLInputElement;
+  async function readPort() {
+    while (serial_port?.readable) {
+      const decoder = new TextDecoderStream();
+      serial_port.readable.pipeTo(decoder.writable);
+      const reader = decoder.readable.getReader();
+
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+
+          if (done) {
+            // |reader| has been canceled.
+            alert("Stopped reading serial port");
+            break;
+          }
+
+          // Do something with |value|...
+          console.textContent += value;
+          //console.textContent += "\r\n";
+          console.scrollTop = console.scrollHeight;
+        }
+      } catch (error) {
+        // Handle |error|...
+        //alert("Error reading serial port!");
+      } finally {
+        reader.releaseLock();
+      }
+    }
+  }
+
+  const baud_select = document.getElementById("select-baud-rate");
+  const connect_button = document.getElementById("connect-port");
+  connect_button?.addEventListener("click", async () => {
+    var baud_rate = Number((baud_select as HTMLInputElement).value);
+    if (serial_port) {
+      await serial_port.open({ baudRate: baud_rate });
+    }
+    readPort();
+  });
+
+  const clear_button = document.getElementById("clear-console");
+  clear_button?.addEventListener("click", () => {
+    console.textContent = "";
+  });
+</script>
