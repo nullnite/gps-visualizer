@@ -1,15 +1,17 @@
-<ol>
-  <li>
+<ol
+  class="m-5 grid grid-cols-5 divide-x-2 divide-y-2 divide-gray-500 text-center"
+>
+  <li class="col-span-2">
     <label>Communication control</label>
   </li>
   <li>
-    <label>GPS coordinates</label>
+    <label>GPS coordinates:</label>
   </li>
   <li>
-    <label>EET time</label>
+    <label>EET time:</label>
   </li>
   <li>
-    <label>Satellite count</label>
+    <label>Satellite count:</label>
   </li>
   <li>
     <label for="port-select">Choose a port:</label>
@@ -20,9 +22,9 @@
     </select>
     <button type="button" name="add-port" autofocus>Add</button>
   </li>
-  <li><p>Sample coords</p></li>
-  <li><p>Sample time</p></li>
-  <li><p>Sample count</p></li>
+  <li class="row-span-3"><p>Sample coords</p></li>
+  <li class="row-span-3"><p>Sample time</p></li>
+  <li class="row-span-3"><p>Sample count</p></li>
   <li>
     <label for="baud-rate-select">Choose a baud rate:</label>
   </li>
@@ -33,8 +35,27 @@
       <option value="9600">9600</option>
     </select>
   </li>
-  <li>
+  <li class="col-span-2">
     <button type="button" name="connect-port">Connect port</button>
+  </li>
+  <li class="col-span-2 flex grow flex-col">
+    <textarea
+      readonly
+      cols="70"
+      rows="10"
+      name="console"
+      class="h-full bg-gray-200"
+      >DS,37.551731,14.298466,14:00:38,0,0.04,-0.01,0.99,0.00,0.10,0.02
+      DS,37.551731,14.298466,14:00:38,0,0.04,-0.01,0.99,0.00,0.10,0.02
+      DS,37.551731,14.298466,14:00:38,0,0.04,-0.01,0.99,0.00,0.10,0.02
+    </textarea>
+    <button type="button" name="clear-console">Clear console</button>
+  </li>
+  <li class="col-span-3">
+    <div class="h-full bg-red-100">Graph</div>
+  </li>
+  <li class="col-span-full">
+    <div class="h-60 bg-yellow-100">Map</div>
   </li>
 </ol>
 
