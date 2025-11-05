@@ -120,6 +120,11 @@
     }
   }
 
+  // Automatically select serial port on page load
+  navigator.serial.getPorts().then((ports) => {
+    serial_port = ports[0];
+  });
+
   // Stop using serial port if it disconnects
   navigator.serial.addEventListener("disconnect", (e) => {
     if (e.target === serial_port) {
