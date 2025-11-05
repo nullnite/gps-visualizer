@@ -46,10 +46,13 @@
     <button type="button" id="clear-console">Clear console</button>
   </li>
   <li class="col-span-3">
-    <div class="h-full bg-red-100">Graph</div>
+    <canvas id="acceleration-chart"></canvas>
   </li>
-  <li class="col-span-full">
-    <div class="h-60 bg-yellow-100">Map</div>
+  <li class="col-span-2">
+    <div class="h-80 bg-yellow-100">Map</div>
+  </li>
+  <li class="col-span-3">
+    <canvas id="rotation-chart"></canvas>
   </li>
 </ol>
 
@@ -163,5 +166,102 @@
   const clear_button = document.getElementById("clear-console");
   clear_button?.addEventListener("click", () => {
     serial_console.textContent = "";
+  });
+
+  import Chart from "chart.js/auto";
+  import { Colors } from "chart.js/auto";
+
+  // Create chart for displaying measured acceleration
+  const acc_chart = document.getElementById(
+    "acceleration-chart",
+  ) as HTMLCanvasElement;
+  new Chart(acc_chart, {
+    type: "line",
+    data: {
+      labels: ["-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0"],
+      datasets: [
+        {
+          label: "X",
+          data: [1, 2, 3],
+          borderWidth: 1,
+        },
+        {
+          label: "Y",
+          data: [3, 2, 1],
+          borderWidth: 1,
+        },
+        {
+          label: "Z",
+          data: [3, -3, -1],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: "Acceleration, g",
+          },
+          max: 4,
+          min: -4,
+        },
+        x: {
+          title: {
+            display: true,
+            text: "Time, s",
+          },
+        },
+      },
+      maintainAspectRatio: false,
+    },
+  });
+
+  // Create chart for displaying measured rotation
+  const rot_chart = document.getElementById(
+    "rotation-chart",
+  ) as HTMLCanvasElement;
+  new Chart(rot_chart, {
+    type: "line",
+    data: {
+      labels: ["-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0"],
+      datasets: [
+        {
+          label: "X",
+          data: [1, 2, 3],
+          borderWidth: 1,
+        },
+        {
+          label: "Y",
+          data: [3, 2, 1],
+          borderWidth: 1,
+        },
+        {
+          label: "Z",
+          data: [3, -3, -1],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: "Rotation, deg",
+          },
+          max: 500,
+          min: -500,
+        },
+        x: {
+          title: {
+            display: true,
+            text: "Time, s",
+          },
+        },
+      },
+      maintainAspectRatio: false,
+    },
   });
 </script>
