@@ -54,7 +54,7 @@
 </ol>
 
 <script>
-  var serial_port: SerialPort | null;
+  let serial_port: SerialPort | null;
 
   const port_button = document.getElementById("select-port");
   port_button?.addEventListener("click", () => {
@@ -86,7 +86,7 @@
     "satellites",
   ) as HTMLParagraphElement;
   function parseData(data: String) {
-    var parts = data.split(",");
+    const parts = data.split(",");
     coordinates.innerText = parts[1] + "\r\n" + parts[2];
     time.innerText = parts[3];
     satellites.innerText = parts[4];
@@ -113,7 +113,7 @@
       serial_port?.readable.pipeTo(decoder.writable);
       const reader = decoder.readable.getReader();
 
-      var buffer = "";
+      let buffer = "";
       try {
         while (true) {
           const { value, done } = await reader.read();
@@ -125,7 +125,7 @@
           // Extract latest row of data from serial port
           // as Web Serial API gives discontinuous rows
           buffer += value;
-          var rows = buffer.split("\r\n");
+          const rows = buffer.split("\r\n");
           buffer = rows.pop() || "";
 
           rows.forEach((row) => {
@@ -147,7 +147,7 @@
   ) as HTMLInputElement;
   const connect_button = document.getElementById("connect-port");
   connect_button?.addEventListener("click", async () => {
-    var baud_rate = Number(baud_select.value);
+    const baud_rate = Number(baud_select.value);
     if (serial_port) {
       await serial_port.open({ baudRate: baud_rate });
     }
