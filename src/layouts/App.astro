@@ -54,8 +54,8 @@
 </ol>
 
 <script>
+  // Request serial port from user's browser
   let serial_port: SerialPort | null;
-
   const port_button = document.getElementById("select-port");
   port_button?.addEventListener("click", () => {
     navigator.serial
@@ -68,43 +68,20 @@
       });
   });
 
-  navigator.serial.addEventListener("disconnect", (e) => {
-    // Remove `e.target` from the list of available ports.
-    if (e.target === serial_port) {
-      serial_port = null;
-      alert("Device disconnected!");
+  // Configure and open serial port
+  const connect_button = document.getElementById("connect-port");
+  const baud_select = document.getElementById(
+    "select-baud-rate",
+  ) as HTMLInputElement;
+  connect_button?.addEventListener("click", async () => {
+    const baud_rate = Number(baud_select.value);
+    if (serial_port) {
+      await serial_port.open({ baudRate: baud_rate });
     }
+    readPort();
   });
 
-  const coordinates = document.getElementById(
-    "coordinates",
-  ) as HTMLParagraphElement;
-  const time = document.getElementById("time") as HTMLParagraphElement;
-  const satellites = document.getElementById(
-    "satellites",
-  ) as HTMLParagraphElement;
-  function parseData(data: String) {
-    const parts = data.split(",");
-    coordinates.innerText = parts[1] + "\r\n" + parts[2];
-    time.innerText = parts[3];
-    satellites.innerText = parts[4];
-  }
-
-  const serial_console = document.getElementById("console") as HTMLInputElement;
-  const serial_console_rows: String[] = [];
-  function printData(data: String) {
-    if (serial_console_rows.length == 50) {
-      serial_console_rows.shift();
-    }
-    serial_console_rows.push(data + "\r\n");
-
-    serial_console.textContent = "";
-    serial_console_rows.forEach((row) => {
-      serial_console.textContent += row;
-    });
-    serial_console.scrollTop = serial_console.scrollHeight;
-  }
-
+  // Read and buffer data from serial port
   async function readPort() {
     while (serial_port?.readable) {
       const decoder = new TextDecoderStream();
@@ -140,18 +117,49 @@
     }
   }
 
-  const baud_select = document.getElementById(
-    "select-baud-rate",
-  ) as HTMLInputElement;
-  const connect_button = document.getElementById("connect-port");
-  connect_button?.addEventListener("click", async () => {
-    const baud_rate = Number(baud_select.value);
-    if (serial_port) {
-      await serial_port.open({ baudRate: baud_rate });
+  // Stop using serial port if it disconnects
+  navigator.serial.addEventListener("disconnect", (e) => {
+    if (e.target === serial_port) {
+      serial_port = null;
+      alert("Device disconnected!");
     }
-    readPort();
   });
 
+  // Extract GPS and sensor measurements from serial data row
+  // and display latest measurements on page
+  const coordinates = document.getElementById(
+    "coordinates",
+  ) as HTMLParagraphElement;
+  const time = document.getElementById("time") as HTMLParagraphElement;
+  const satellites = document.getElementById(
+    "satellites",
+  ) as HTMLParagraphElement;
+  function parseData(data: String) {
+    const parts = data.split(",");
+    coordinates.innerText = parts[1] + "\r\n" + parts[2];
+    time.innerText = parts[3];
+    satellites.innerText = parts[4];
+  }
+
+  // Print serial data rows to page
+  const serial_console = document.getElementById("console") as HTMLInputElement;
+  const serial_console_rows: String[] = [];
+  function printData(data: String) {
+    // Limit serial history to 50 rows
+    if (serial_console_rows.length == 50) {
+      serial_console_rows.shift();
+    }
+    serial_console_rows.push(data + "\r\n");
+
+    // Sync rows with printed rows on page
+    serial_console.textContent = "";
+    serial_console_rows.forEach((row) => {
+      serial_console.textContent += row;
+    });
+    serial_console.scrollTop = serial_console.scrollHeight;
+  }
+
+  // Clear printed serial data
   const clear_button = document.getElementById("clear-console");
   clear_button?.addEventListener("click", () => {
     serial_console.textContent = "";
