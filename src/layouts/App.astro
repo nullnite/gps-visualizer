@@ -58,15 +58,13 @@
 
   const port_button = document.getElementById("select-port");
   port_button?.addEventListener("click", () => {
-    serial_port = null;
-
     navigator.serial
       .requestPort()
       .then((port) => {
         serial_port = port;
       })
       .catch((e) => {
-        alert("Please select a port!");
+        serial_port = null;
       });
   });
 
@@ -115,7 +113,7 @@
 
       let buffer = "";
       try {
-        while (true) {
+        while (serial_port) {
           const { value, done } = await reader.read();
 
           if (done) {
