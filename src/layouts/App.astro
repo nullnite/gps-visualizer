@@ -19,9 +19,9 @@
   <li>
     <button type="button" id="select-port" autofocus>Select</button>
   </li>
-  <li class="row-span-3"><p>Sample coords</p></li>
-  <li class="row-span-3"><p>Sample time</p></li>
-  <li class="row-span-3"><p>Sample count</p></li>
+  <li class="row-span-3"><p id="coordinates">---</p></li>
+  <li class="row-span-3"><p id="time">---</p></li>
+  <li class="row-span-3"><p id="satellites">---</p></li>
   <li>
     <label for="select-baud-rate">Choose a baud rate:</label>
   </li>
@@ -41,7 +41,7 @@
       cols="70"
       rows="10"
       id="console"
-      class="h-full bg-gray-200 text-sm"></textarea>
+      class="h-full overflow-hidden bg-gray-200 px-1 text-xs"></textarea>
     <button type="button" id="clear-console">Clear console</button>
   </li>
   <li class="col-span-3">
@@ -57,14 +57,14 @@
 
   const port_button = document.getElementById("select-port");
   port_button?.addEventListener("click", () => {
+    serial_port = null;
+
     navigator.serial
       .requestPort()
       .then((port) => {
-        // Connect to `port` or add it to the list of available ports.
         serial_port = port;
       })
       .catch((e) => {
-        // The user didn't select a port.
         alert("Please select a port!");
       });
   });
@@ -77,41 +77,79 @@
     }
   });
 
-  const console = document.getElementById("console") as HTMLInputElement;
+  const coordinates = document.getElementById(
+    "coordinates",
+  ) as HTMLParagraphElement;
+  const time = document.getElementById("time") as HTMLParagraphElement;
+  const satellites = document.getElementById(
+    "satellites",
+  ) as HTMLParagraphElement;
+  function parseData(data: String) {
+    var parts = data.split(",");
+    coordinates.innerText = parts[1] + "\r\n" + parts[2];
+    time.innerText = parts[3];
+    satellites.innerText = parts[4];
+  }
+
+  function bufferSerial(buffer: String) {
+    // Extract latest row of data from serial port
+    // as Web Serial API gives discontinuous rows
+    var lines = buffer.split("\r\n");
+    buffer = lines.pop() || "";
+
+    var complete: string[] = [];
+    lines.forEach((line) => {
+      if (line.trim().length === 0) return;
+
+      complete.push(line);
+    });
+
+    return complete;
+  }
+
+  const serial_console = document.getElementById("console") as HTMLInputElement;
+  function printData(data: String) {
+    serial_console.textContent += data + "\r\n";
+    serial_console.scrollTop = serial_console.scrollHeight;
+  }
+
   async function readPort() {
     while (serial_port?.readable) {
       const decoder = new TextDecoderStream();
-      serial_port.readable.pipeTo(decoder.writable);
+      serial_port?.readable.pipeTo(decoder.writable);
       const reader = decoder.readable.getReader();
 
+      var buffer = "";
       try {
         while (true) {
           const { value, done } = await reader.read();
 
           if (done) {
-            // |reader| has been canceled.
-            alert("Stopped reading serial port");
             break;
           }
 
-          // Do something with |value|...
-          console.textContent += value;
-          //console.textContent += "\r\n";
-          console.scrollTop = console.scrollHeight;
+          buffer += value;
+          var rows = bufferSerial(buffer);
+
+          rows.forEach((row) => {
+            printData(row);
+            parseData(row);
+          });
         }
       } catch (error) {
-        // Handle |error|...
-        //alert("Error reading serial port!");
+        console.error("Error reading serial port!");
       } finally {
         reader.releaseLock();
       }
     }
   }
 
-  const baud_select = document.getElementById("select-baud-rate");
+  const baud_select = document.getElementById(
+    "select-baud-rate",
+  ) as HTMLInputElement;
   const connect_button = document.getElementById("connect-port");
   connect_button?.addEventListener("click", async () => {
-    var baud_rate = Number((baud_select as HTMLInputElement).value);
+    var baud_rate = Number(baud_select.value);
     if (serial_port) {
       await serial_port.open({ baudRate: baud_rate });
     }
@@ -120,6 +158,6 @@
 
   const clear_button = document.getElementById("clear-console");
   clear_button?.addEventListener("click", () => {
-    console.textContent = "";
+    serial_console.textContent = "";
   });
 </script>
