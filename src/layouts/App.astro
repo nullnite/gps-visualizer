@@ -143,10 +143,25 @@
     "satellites",
   ) as HTMLParagraphElement;
   function parseData(data: String) {
+    // Parse GPS data
     const parts = data.split(",");
     coordinates.innerText = parts[1] + "\r\n" + parts[2];
     time.innerText = parts[3];
     satellites.innerText = parts[4];
+
+    // Parse accelerometer daa
+    for (let i = 0; i < 3; i++) {
+      acc_chart.data.datasets[i].data.shift();
+      acc_chart.data.datasets[i].data.push(parts[5 + i]);
+      acc_chart.update();
+    }
+
+    // Parse gyroscope data
+    for (let i = 0; i < 3; i++) {
+      rot_chart.data.datasets[i].data.shift();
+      rot_chart.data.datasets[i].data.push(parts[8 + i]);
+      rot_chart.update();
+    }
   }
 
   // Print serial data rows to page
@@ -177,27 +192,27 @@
   import { Colors } from "chart.js/auto";
 
   // Create chart for displaying measured acceleration
-  const acc_chart = document.getElementById(
+  const acc_chart_canvas = document.getElementById(
     "acceleration-chart",
   ) as HTMLCanvasElement;
-  new Chart(acc_chart, {
+  const acc_chart = new Chart(acc_chart_canvas, {
     type: "line",
     data: {
-      labels: ["-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0"],
+      labels: Array.from({ length: 20 }, (e, i) => -9.5 + i * 0.5),
       datasets: [
         {
           label: "X",
-          data: [1, 2, 3],
+          data: new Array(20).fill(0),
           borderWidth: 1,
         },
         {
           label: "Y",
-          data: [3, 2, 1],
+          data: new Array(20).fill(0),
           borderWidth: 1,
         },
         {
           label: "Z",
-          data: [3, -3, -1],
+          data: new Array(20).fill(0),
           borderWidth: 1,
         },
       ],
@@ -224,27 +239,27 @@
   });
 
   // Create chart for displaying measured rotation
-  const rot_chart = document.getElementById(
+  const rot_chart_canvas = document.getElementById(
     "rotation-chart",
   ) as HTMLCanvasElement;
-  new Chart(rot_chart, {
+  const rot_chart = new Chart(rot_chart_canvas, {
     type: "line",
     data: {
-      labels: ["-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0"],
+      labels: Array.from({ length: 20 }, (e, i) => -9.5 + i * 0.5),
       datasets: [
         {
           label: "X",
-          data: [1, 2, 3],
+          data: new Array(20).fill(0),
           borderWidth: 1,
         },
         {
           label: "Y",
-          data: [3, 2, 1],
+          data: new Array(20).fill(0),
           borderWidth: 1,
         },
         {
           label: "Z",
-          data: [3, -3, -1],
+          data: new Array(20).fill(0),
           borderWidth: 1,
         },
       ],
