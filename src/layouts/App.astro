@@ -190,6 +190,7 @@
   const clear_button = document.getElementById("clear-console");
   clear_button?.addEventListener("click", () => {
     serial_console.textContent = "";
+    serial_console_rows.length = 0;
   });
 
   import Chart from "chart.js/auto";
