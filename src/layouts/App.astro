@@ -49,7 +49,7 @@
     <canvas id="acceleration-chart"></canvas>
   </li>
   <li class="col-span-2">
-    <div class="h-80 bg-yellow-100">Map</div>
+    <div class="h-80" id="map">Map</div>
   </li>
   <li class="col-span-3">
     <canvas id="rotation-chart"></canvas>
@@ -148,6 +148,10 @@
     coordinates.innerText = parts[1] + "\r\n" + parts[2];
     time.innerText = parts[3];
     satellites.innerText = parts[4];
+
+    // Update map
+    marker.setLatLng([Number(parts[1]), Number(parts[2])]);
+    map.setView(marker.getLatLng());
 
     // Parse accelerometer daa
     for (let i = 0; i < 3; i++) {
@@ -284,4 +288,21 @@
       maintainAspectRatio: false,
     },
   });
+
+  // Create map for displaying GPS coordinates
+  import "leaflet/dist/leaflet.css";
+  import L from "leaflet";
+
+  const map = L.map("map", {
+    center: L.latLng(54.903801, 23.957818),
+    zoom: 16,
+  });
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution:
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map);
+
+  const marker = L.marker(map.getCenter()).addTo(map);
 </script>
