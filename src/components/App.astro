@@ -34,6 +34,8 @@
   </li>
   <li class="col-span-2">
     <button type="button" id="connect-port">Connect port</button>
+    <button type="button" id="save">Save</button>
+    <button type="button" id="load">Load</button>
   </li>
   <li class="col-span-2 flex grow flex-col">
     <textarea
@@ -308,4 +310,65 @@
   }).addTo(map);
 
   const marker = L.marker(map.getCenter()).addTo(map);
+
+  // Database functionality
+  const load_button = document.getElementById("load") as HTMLButtonElement;
+  load_button.addEventListener("click", () => {
+    receiveData();
+
+    const color = load_button.style.backgroundColor;
+    load_button.style.backgroundColor = "green";
+    load_button.disabled = true;
+
+    setInterval(() => {
+      load_button.style.backgroundColor = color;
+      load_button.disabled = false;
+    }, 5000);
+  });
+
+  function sendData(row: string) {
+    const xhr = new XMLHttpRequest();
+    const method = "POST";
+    const url = "https://gpsdb.jects.lt/api.php";
+    const username = "gps";
+    const password = "gps password";
+
+    xhr.open(method, url, true, username, password);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status !== 200) {
+        throw Error;
+      }
+    };
+
+    const parts = row.split(",");
+    const data = JSON.stringify({
+      latitude: parts[1],
+      longitude: parts[2],
+      time: parts[3],
+      satellites: parts[4],
+      acceleration_x: parts[5],
+      acceleration_y: parts[6],
+      acceleration_z: parts[7],
+      rotation_x: parts[8],
+      rotation_y: parts[9],
+      rotation_z: parts[10],
+    });
+    xhr.send(data);
+  }
+
+  function receiveData() {
+    const xhr = new XMLHttpRequest();
+    const method = "GET";
+    const url = "https://gpsdb.jects.lt/api.php";
+    const username = "gps";
+    const password = "gps password";
+
+    xhr.open(method, url, true, username, password);
+    xhr.onload = () => {
+      const json = JSON.parse(xhr.responseText);
+      console.log(json);
+    };
+    xhr.send(null);
+  }
 </script>
