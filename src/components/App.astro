@@ -376,8 +376,24 @@
     xhr.withCredentials = true;
 
     xhr.onload = () => {
-      const json = JSON.parse(xhr.responseText);
-      console.log(json);
+      const database = JSON.parse(xhr.responseText);
+      database.forEach((database_row: any) => {
+        const sorted_row = [
+          "DS",
+          database_row["latitude"],
+          database_row["longitude"],
+          database_row["time"],
+          database_row["satellites"],
+          database_row["acceleration_x"],
+          database_row["acceleration_y"],
+          database_row["acceleration_z"],
+          database_row["rotation_x"],
+          database_row["rotation_y"],
+          database_row["rotation_z"],
+        ];
+        const delimited_row = sorted_row.join(",");
+        printData(delimited_row);
+      });
     };
     xhr.send(null);
   }
