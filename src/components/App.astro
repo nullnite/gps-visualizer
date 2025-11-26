@@ -312,6 +312,27 @@
   const marker = L.marker(map.getCenter()).addTo(map);
 
   // Database functionality
+  const save_button = document.getElementById("save") as HTMLButtonElement;
+  save_button.addEventListener("click", () => {
+    try {
+      serial_console_rows.forEach((row) => {
+        sendData(row);
+      });
+    } catch (Error) {
+      alert("Error sending to database!");
+      return;
+    }
+
+    const color = save_button.style.backgroundColor;
+    save_button.style.backgroundColor = "green";
+    save_button.disabled = true;
+
+    setInterval(() => {
+      save_button.style.backgroundColor = color;
+      save_button.disabled = false;
+    }, 5000);
+  });
+
   const load_button = document.getElementById("load") as HTMLButtonElement;
   load_button.addEventListener("click", () => {
     receiveData();
@@ -330,7 +351,7 @@
   const username = "gps";
   const password = "gps password";
 
-  function sendData(row: string) {
+  function sendData(row: String) {
     const xhr = new XMLHttpRequest();
     const method = "POST";
 
