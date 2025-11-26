@@ -392,7 +392,9 @@
           database_row["rotation_z"],
         ];
         const delimited_row = sorted_row.join(",");
+
         printData(delimited_row);
+        parseData(delimited_row);
       });
     };
     xhr.send(null);
