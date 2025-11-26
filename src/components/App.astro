@@ -326,15 +326,21 @@
     }, 5000);
   });
 
+  const url = "https://gpsdb.jects.lt/api.php";
+  const username = "gps";
+  const password = "gps password";
+
   function sendData(row: string) {
     const xhr = new XMLHttpRequest();
     const method = "POST";
-    const url = "https://gpsdb.jects.lt/api.php";
-    const username = "gps";
-    const password = "gps password";
 
-    xhr.open(method, url, true, username, password);
-    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.open(method, url, true);
+    xhr.setRequestHeader(
+      "Authorization",
+      "Basic " + btoa(username + ":" + password),
+    );
+    xhr.withCredentials = true;
+
     xhr.onreadystatechange = () => {
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status !== 200) {
         throw Error;
@@ -354,17 +360,21 @@
       rotation_y: parts[9],
       rotation_z: parts[10],
     });
+    xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(data);
   }
 
   function receiveData() {
     const xhr = new XMLHttpRequest();
     const method = "GET";
-    const url = "https://gpsdb.jects.lt/api.php";
-    const username = "gps";
-    const password = "gps password";
 
-    xhr.open(method, url, true, username, password);
+    xhr.open(method, url, true);
+    xhr.setRequestHeader(
+      "Authorization",
+      "Basic " + btoa(username + ":" + password),
+    );
+    xhr.withCredentials = true;
+
     xhr.onload = () => {
       const json = JSON.parse(xhr.responseText);
       console.log(json);
